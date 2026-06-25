@@ -1,20 +1,21 @@
-import React, { useLayoutEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { EmptyState } from '../components/EmptyState';
+import { Fab } from '../components/Fab';
 import { FilterTabs } from '../components/FilterTabs';
 import { SearchBar } from '../components/SearchBar';
 import { TaskItem } from '../components/TaskItem';
+import { TaskStats } from '../components/TaskStats';
 import { useTasks } from '../context/TasksContext';
 import type { RootStackScreenProps } from '../navigation/types';
-import { colors, spacing } from '../theme';
+import { colors, spacing, typography } from '../theme';
 import type { TaskFilter } from '../types';
 
 export function TaskListScreen({ navigation }: RootStackScreenProps<'TaskList'>) {
@@ -22,21 +23,14 @@ export function TaskListScreen({ navigation }: RootStackScreenProps<'TaskList'>)
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<TaskFilter>('all');
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Add task"
-          onPress={() => navigation.navigate('AddTask')}
-          hitSlop={8}
-          style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
-        >
-          <Text style={styles.addButtonLabel}>＋</Text>
-        </Pressable>
-      ),
-    });
-  }, [navigation]);
+  const counts = useMemo(() => {
+    const completed = tasks.filter((t) => t.status === 'completed').length;
+    return {
+      all: tasks.length,
+      pending: tasks.length - completed,
+      completed,
+    };
+  }, [tasks]);
 
   const visibleTasks = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -58,15 +52,28 @@ export function TaskListScreen({ navigation }: RootStackScreenProps<'TaskList'>)
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+      <View style={styles.header}>
+        <Text style={styles.greeting}>Hello 👋</Text>
+        <Text style={styles.subtitle}>
+          {counts.pending > 0
+            ? `You have ${counts.pending} task${counts.pending === 1 ? '' : 's'} to complete`
+            : 'All caught up. Nice work!'}
+        </Text>
+      </View>
+
       <View style={styles.controls}>
+        <TaskStats total={counts.all} completed={counts.completed} />
         <SearchBar value={query} onChange={setQuery} />
-        <FilterTabs value={filter} onChange={setFilter} />
+        <FilterTabs value={filter} onChange={setFilter} counts={counts} />
         {seedError && (
-          <Text style={styles.seedError}>
-            Couldn’t fetch sample tasks ({seedError}). You can still add your own.
-          </Text>
+          <View style={styles.banner}>
+            <Text style={styles.bannerText}>
+              Couldn’t fetch sample tasks ({seedError}). You can still add your own.
+            </Text>
+          </View>
         )}
       </View>
+
       <FlatList
         data={visibleTasks}
         keyExtractor={(task) => task.id}
@@ -84,16 +91,23 @@ export function TaskListScreen({ navigation }: RootStackScreenProps<'TaskList'>)
         ListEmptyComponent={
           tasks.length === 0 ? (
             <EmptyState
+              icon="rocket-outline"
               title="No tasks yet"
-              message="Tap ＋ in the top right to add your first task."
+              message="Tap the + button to create your first task."
             />
           ) : (
             <EmptyState
+              icon="search-outline"
               title="No matching tasks"
               message="Try a different search term or filter."
             />
           )
         }
+      />
+
+      <Fab
+        accessibilityLabel="Add task"
+        onPress={() => navigation.navigate('AddTask')}
       />
     </SafeAreaView>
   );
@@ -115,36 +129,43 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 14,
   },
+  header: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
+  },
+  greeting: {
+    ...typography.h1,
+    color: colors.text,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
   controls: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
     paddingBottom: spacing.md,
     gap: spacing.md,
   },
-  seedError: {
+  banner: {
+    backgroundColor: colors.warningSoft,
+    padding: spacing.md,
+    borderRadius: 12,
+  },
+  bannerText: {
     color: colors.warning,
     fontSize: 13,
   },
   listContent: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
+    paddingBottom: 100,
+    paddingTop: spacing.sm,
   },
   emptyContent: {
     flexGrow: 1,
   },
   separator: {
-    height: spacing.sm,
-  },
-  addButton: {
-    paddingHorizontal: spacing.sm,
-  },
-  addButtonPressed: {
-    opacity: 0.6,
-  },
-  addButtonLabel: {
-    fontSize: 28,
-    color: colors.primary,
-    fontWeight: '600',
-    lineHeight: 30,
+    height: spacing.sm + 2,
   },
 });

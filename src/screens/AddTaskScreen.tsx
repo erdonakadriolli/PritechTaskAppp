@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -12,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { useTasks } from '../context/TasksContext';
 import type { RootStackScreenProps } from '../navigation/types';
-import { colors, radius, spacing } from '../theme';
+import { colors, radius, shadow, spacing, typography } from '../theme';
 
 const TITLE_MAX = 80;
 const DESCRIPTION_MAX = 280;
@@ -64,8 +65,23 @@ export function AddTaskScreen({ navigation }: RootStackScreenProps<'AddTask'>) {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.field}>
-            <Text style={styles.label}>Title</Text>
+          <View style={styles.intro}>
+            <View style={styles.introIcon}>
+              <Ionicons name="add-circle" size={28} color={colors.primary} />
+            </View>
+            <View style={styles.introText}>
+              <Text style={styles.introTitle}>Create a new task</Text>
+              <Text style={styles.introSubtitle}>
+                Add details below — title is required.
+              </Text>
+            </View>
+          </View>
+
+          <View style={[styles.field, shadow.sm]}>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Title</Text>
+              <Text style={styles.required}>Required</Text>
+            </View>
             <TextInput
               accessibilityLabel="Task title"
               value={title}
@@ -76,22 +92,28 @@ export function AddTaskScreen({ navigation }: RootStackScreenProps<'AddTask'>) {
               style={[styles.input, liveErrors.title && styles.inputError]}
               returnKeyType="next"
             />
-            {liveErrors.title ? (
-              <Text style={styles.errorText}>{liveErrors.title}</Text>
-            ) : (
-              <Text style={styles.helperText}>
+            <View style={styles.helperRow}>
+              {liveErrors.title ? (
+                <Text style={styles.errorText}>{liveErrors.title}</Text>
+              ) : (
+                <View />
+              )}
+              <Text style={styles.counter}>
                 {title.trim().length}/{TITLE_MAX}
               </Text>
-            )}
+            </View>
           </View>
 
-          <View style={styles.field}>
-            <Text style={styles.label}>Description</Text>
+          <View style={[styles.field, shadow.sm]}>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Description</Text>
+              <Text style={styles.optional}>Optional</Text>
+            </View>
             <TextInput
               accessibilityLabel="Task description"
               value={description}
               onChangeText={setDescription}
-              placeholder="Optional details"
+              placeholder="Add a few details to remember later…"
               placeholderTextColor={colors.textMuted}
               multiline
               numberOfLines={4}
@@ -103,22 +125,31 @@ export function AddTaskScreen({ navigation }: RootStackScreenProps<'AddTask'>) {
               ]}
               textAlignVertical="top"
             />
-            {liveErrors.description ? (
-              <Text style={styles.errorText}>{liveErrors.description}</Text>
-            ) : (
-              <Text style={styles.helperText}>
+            <View style={styles.helperRow}>
+              {liveErrors.description ? (
+                <Text style={styles.errorText}>{liveErrors.description}</Text>
+              ) : (
+                <View />
+              )}
+              <Text style={styles.counter}>
                 {description.trim().length}/{DESCRIPTION_MAX}
               </Text>
-            )}
+            </View>
           </View>
         </ScrollView>
         <View style={styles.actions}>
           <PrimaryButton
             label="Cancel"
-            variant="ghost"
+            variant="secondary"
             onPress={() => navigation.goBack()}
+            style={{ flex: 1 }}
           />
-          <PrimaryButton label="Save task" onPress={handleSubmit} />
+          <PrimaryButton
+            label="Save task"
+            icon="checkmark"
+            onPress={handleSubmit}
+            style={{ flex: 1.4 }}
+          />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -137,18 +168,64 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.lg,
   },
-  field: {
-    gap: spacing.xs,
+  intro: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    alignItems: 'center',
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
+  introIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  introText: {
+    flex: 1,
+  },
+  introTitle: {
+    ...typography.h2,
     color: colors.text,
   },
-  input: {
+  introSubtitle: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  field: {
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  label: {
+    ...typography.h3,
+    color: colors.text,
+  },
+  required: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  optional: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  input: {
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
@@ -156,25 +233,33 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   inputMultiline: {
-    minHeight: 120,
+    minHeight: 130,
   },
   inputError: {
     borderColor: colors.danger,
+    backgroundColor: colors.dangerSoft,
+  },
+  helperRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   errorText: {
     fontSize: 13,
     color: colors.danger,
+    fontWeight: '500',
   },
-  helperText: {
+  counter: {
     fontSize: 12,
     color: colors.textMuted,
-    textAlign: 'right',
+    marginLeft: 'auto',
   },
   actions: {
-    padding: spacing.lg,
+    flexDirection: 'row',
     gap: spacing.md,
+    padding: spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: colors.borderLight,
     backgroundColor: colors.surface,
   },
 });

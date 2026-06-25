@@ -18,8 +18,9 @@ export default function App() {
         <NavigationContainer>
           <Stack.Navigator
             screenOptions={{
-              headerStyle: { backgroundColor: colors.surface },
-              headerTitleStyle: { color: colors.text, fontWeight: '700' },
+              headerStyle: { backgroundColor: colors.background },
+              headerShadowVisible: false,
+              headerTitleStyle: { color: colors.text, fontWeight: '700', fontSize: 17 },
               headerTintColor: colors.primary,
               contentStyle: { backgroundColor: colors.background },
             }}
@@ -27,7 +28,7 @@ export default function App() {
             <Stack.Screen
               name="TaskList"
               component={TaskListScreen}
-              options={{ title: 'My Tasks' }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="TaskDetails"

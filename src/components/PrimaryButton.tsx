@@ -1,19 +1,22 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
   ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
+  View,
   ViewStyle,
 } from 'react-native';
-import { colors, radius, spacing } from '../theme';
+import { colors, radius, shadow, spacing } from '../theme';
 
 interface PrimaryButtonProps {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'danger' | 'ghost';
+  variant?: 'primary' | 'danger' | 'ghost' | 'secondary';
   disabled?: boolean;
   loading?: boolean;
+  icon?: keyof typeof Ionicons.glyphMap;
   style?: ViewStyle;
 }
 
@@ -23,16 +26,17 @@ export function PrimaryButton({
   variant = 'primary',
   disabled,
   loading,
+  icon,
   style,
 }: PrimaryButtonProps) {
-  const bg =
-    variant === 'danger'
-      ? colors.danger
-      : variant === 'ghost'
-        ? 'transparent'
-        : colors.primary;
-  const textColor = variant === 'ghost' ? colors.primary : '#FFFFFF';
   const isDisabled = disabled || loading;
+
+  const palette = {
+    primary: { bg: colors.primary, text: '#FFFFFF', border: 'transparent' },
+    danger: { bg: colors.danger, text: '#FFFFFF', border: 'transparent' },
+    ghost: { bg: 'transparent', text: colors.primary, border: colors.primary },
+    secondary: { bg: colors.surface, text: colors.text, border: colors.border },
+  }[variant];
 
   return (
     <Pressable
@@ -42,15 +46,24 @@ export function PrimaryButton({
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: bg, opacity: isDisabled ? 0.5 : pressed ? 0.85 : 1 },
-        variant === 'ghost' && styles.ghost,
+        {
+          backgroundColor: palette.bg,
+          borderColor: palette.border,
+          borderWidth: variant === 'ghost' || variant === 'secondary' ? 1.5 : 0,
+          opacity: isDisabled ? 0.5 : pressed ? 0.88 : 1,
+          transform: [{ scale: pressed && !isDisabled ? 0.98 : 1 }],
+        },
+        variant === 'primary' && shadow.sm,
         style,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={textColor} />
+        <ActivityIndicator color={palette.text} />
       ) : (
-        <Text style={[styles.label, { color: textColor }]}>{label}</Text>
+        <View style={styles.content}>
+          {icon && <Ionicons name={icon} size={18} color={palette.text} />}
+          <Text style={[styles.label, { color: palette.text }]}>{label}</Text>
+        </View>
       )}
     </Pressable>
   );
@@ -58,18 +71,20 @@ export function PrimaryButton({
 
 const styles = StyleSheet.create({
   button: {
-    minHeight: 48,
+    minHeight: 50,
     paddingHorizontal: spacing.lg,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ghost: {
-    borderWidth: 1,
-    borderColor: colors.primary,
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
+    letterSpacing: 0.2,
   },
 });

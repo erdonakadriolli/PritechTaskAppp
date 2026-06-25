@@ -6,6 +6,7 @@ import type { TaskFilter } from '../types';
 interface FilterTabsProps {
   value: TaskFilter;
   onChange: (next: TaskFilter) => void;
+  counts: Record<TaskFilter, number>;
 }
 
 const TABS: ReadonlyArray<{ key: TaskFilter; label: string }> = [
@@ -14,11 +15,12 @@ const TABS: ReadonlyArray<{ key: TaskFilter; label: string }> = [
   { key: 'completed', label: 'Done' },
 ];
 
-export function FilterTabs({ value, onChange }: FilterTabsProps) {
+export function FilterTabs({ value, onChange, counts }: FilterTabsProps) {
   return (
     <View style={styles.row}>
       {TABS.map((tab) => {
         const active = tab.key === value;
+        const count = counts[tab.key];
         return (
           <Pressable
             key={tab.key}
@@ -34,6 +36,11 @@ export function FilterTabs({ value, onChange }: FilterTabsProps) {
             <Text style={[styles.label, active && styles.labelActive]}>
               {tab.label}
             </Text>
+            <View style={[styles.badge, active && styles.badgeActive]}>
+              <Text style={[styles.badgeText, active && styles.badgeTextActive]}>
+                {count}
+              </Text>
+            </View>
           </Pressable>
         );
       })}
@@ -46,29 +53,50 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: colors.surface,
     borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: 4,
-    gap: 4,
+    gap: 2,
   },
   tab: {
     flex: 1,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    gap: 6,
+    paddingVertical: spacing.sm + 2,
+    borderRadius: radius.pill,
   },
   tabActive: {
     backgroundColor: colors.primary,
   },
   tabPressed: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: colors.surfaceAlt,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.textMuted,
+    color: colors.textSecondary,
   },
   labelActive: {
+    color: '#FFFFFF',
+  },
+  badge: {
+    minWidth: 22,
+    paddingHorizontal: 6,
+    height: 20,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.textSecondary,
+  },
+  badgeTextActive: {
     color: '#FFFFFF',
   },
 });
