@@ -53,11 +53,13 @@ export function TaskListScreen({ navigation }: RootStackScreenProps<'TaskList'>)
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>Hello 👋</Text>
+        <Text style={styles.greeting}>My Tasks</Text>
         <Text style={styles.subtitle}>
-          {counts.pending > 0
-            ? `You have ${counts.pending} task${counts.pending === 1 ? '' : 's'} to complete`
-            : 'All caught up. Nice work!'}
+          {new Date().toLocaleDateString(undefined, {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          })}
         </Text>
       </View>
 
