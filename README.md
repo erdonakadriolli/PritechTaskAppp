@@ -81,7 +81,7 @@ npm start
 
 ## First-launch behavior
 
-On first launch the app calls `https://jsonplaceholder.typicode.com/todos?_limit=5` and pre-populates the list with five sample tasks. After that, all data is stored locally via `AsyncStorage` and the app no longer hits the network. If the seed request fails (e.g. offline), a small warning is shown above the list and the user can still add tasks normally.
+On first launch the app calls `https://jsonplaceholder.typicode.com/todos?_limit=5` and uses the response (ids + completion status) to seed five realistic sample tasks. Titles and descriptions come from a small local template so the demo data feels like real work items rather than the API's placeholder strings. After that, all data is stored locally via `AsyncStorage` and the app no longer hits the network. If the seed request fails (e.g. offline), a small warning is shown above the list and the user can still add tasks normally.
 
 To reset the seeded data, clear the app's storage from device settings or reinstall the app.
 
