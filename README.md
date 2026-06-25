@@ -4,8 +4,8 @@ A small React Native app that lets a user manage a list of personal tasks. Built
 
 ## Tech stack
 
-- **Expo SDK 55** (managed workflow) — so it can be opened on a real device with Expo Go, no native toolchain required
-- **React 19** + **React Native 0.83**
+- **Expo SDK 54** (managed workflow) — so it can be opened on a real device with Expo Go, no native toolchain required
+- **React 19** + **React Native 0.81**
 - **TypeScript**
 - **React Navigation v7** (native stack) for screen navigation
 - **AsyncStorage** for on-device persistence
